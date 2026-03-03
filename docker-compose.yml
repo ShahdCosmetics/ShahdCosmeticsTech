@@ -3,12 +3,12 @@ version: '3.8'
 services:
   db:
     image: postgres:15-alpine # 18.3 yerine stabil 15 veya 16 öneririm (18 çok yeni/beta olabilir)
-    container_name: sahad_db
+    container_name: shahd_db
     restart: always
     environment:
-      POSTGRES_USER: sahad_user
-      POSTGRES_PASSWORD: sahad_password
-      POSTGRES_DB: sahad_db
+      POSTGRES_USER: shahd_user
+      POSTGRES_PASSWORD: shahd_password
+      POSTGRES_DB: shahd_db
     ports:
       - "5432:5432"
     volumes:
@@ -16,19 +16,19 @@ services:
 
   backend:
     build: ./backend
-    container_name: sahad_backend
+    container_name: shahd_backend
     restart: always
     ports:
       - "3000:3000"
     environment:
-      DATABASE_URL: "postgresql://sahad_user:sahad_password@db:5432/sahad_db"
+      DATABASE_URL: "postgresql://shahd_user:shahd_password@db:5432/shahd_db"
       PORT: 3000
     depends_on:
       - db
 
   frontend:
     build: ./frontend
-    container_name: sahad_frontend
+    container_name: shahd_frontend
     restart: always
     ports:
       - "3001:3000" # Dışarıdan 3001 ile erişilecek, içeride 3000'de çalışıyor

@@ -12,7 +12,7 @@ Follow these steps to set up the project on your local machine after pulling the
 The `.env` file is ignored by Git for security. You must create it manually:
 * Navigate to the `backend` folder.
 * Create .env file and past the folowing content
-    DATABASE_URL="postgresql://sahad_user:sahad_password@localhost:5432/sahad_db"
+    DATABASE_URL="postgresql://shahd_user:shahd_password@localhost:5432/shahd_db"
     PORT=3000
 
 ---
@@ -26,7 +26,7 @@ docker-compose up --build -d
 
 ### Run this command once to connect to the database.
 execute this command after ensure Docker is running:
-docker exec -it sahad_backend npx prisma db push
+docker exec -it shahd_backend npx prisma db push
 
 control following urls:
 Frontend: http://localhost:3001
