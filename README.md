@@ -38,4 +38,6 @@ Open a terminal in the backend/ folder.
 Run: npx prisma@5.22.0 studio
 Access it at: http://localhost:5555
 
+after you finish your session don't forget to stop docker using the following command: docker-compose stop
+
 03.04.2026
