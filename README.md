@@ -37,3 +37,5 @@ To manage products or users visually, use Prisma Studio.
 Open a terminal in the backend/ folder.
 Run: npx prisma@5.22.0 studio
 Access it at: http://localhost:5555
+
+03.04.2026
