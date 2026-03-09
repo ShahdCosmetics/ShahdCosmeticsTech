@@ -8,16 +8,11 @@ Follow these steps to set up the project on your local machine after pulling the
 
 ---
 
-### 1. Environment Configuration
-The `.env` file is ignored by Git for security. You must create it manually:
-* Navigate to the `backend` folder.
-* Create .env file and past the folowing content
-    DATABASE_URL="postgresql://shahd_user:shahd_password@localhost:5432/shahd_db"
-    PORT=3000
+
 
 ---
 
-### 2. Launch the Infrastructure
+### 1. Launch the Infrastructure
 We use Docker Compose to manage all services. In the **root directory** (where `docker-compose.yml` is), run:
 
 ```bash
