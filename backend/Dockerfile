@@ -18,7 +18,7 @@ RUN npx prisma generate
 COPY . .
 
 # 6. Build al
-RUN npm run build
+#RUN npm run build
 
 EXPOSE 3000
 CMD ["node", "dist/main.js"]

@@ -3,20 +3,17 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
 describe('AppController', () => {
-  let appController: AppController;
+  let controller: AppController;
+  let service: AppService;
 
   beforeEach(async () => {
-    const app: TestingModule = await Test.createTestingModule({
-      controllers: [AppController],
-      providers: [AppService],
-    }).compile();
-
-    appController = app.get<AppController>(AppController);
+    // We manually create the service and controller without Nest's complex injector
+    service = new AppService();
+    controller = new AppController(service);
   });
 
-  describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
-    });
+  it('should return the correct message from the service', () => {
+    const result = controller.getRootResponse();
+    expect(result.message).toBe('ShahdCosmetics API is running!');
   });
 });
