@@ -27,7 +27,7 @@ export default async function Home() {
         <section className="text-center mb-16">
           <h2 className="text-5xl font-extrabold mb-4">Welcome to ShahdCosmetics</h2>
           <p className="text-zinc-600 dark:text-zinc-400 text-lg">
-            En seçkin kozmetik ürünleri ve özel formüllerle tanışın.
+            Welcome to ShahdCosmetic
           </p>
         </section>
 
