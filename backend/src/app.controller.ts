@@ -6,9 +6,6 @@ import { RootResponseDto } from './app.dto';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  /**
-   * Handles the root GET request.
-   */
   @Get()
   getRootResponse(): RootResponseDto {
     return this.appService.getRootDirMessage();
