@@ -2,18 +2,23 @@ FROM node:20-bullseye
 
 WORKDIR /app
 
-# Copy package files first to leverage Docker layer caching
+# 1. Sadece package dosyalarını kopyala
 COPY package*.json ./
 
-# Install all dependencies
+# 2. Tüm dependencies'yi kur
 RUN npm install
 
-# Copy Prisma schema and generate the client
+# 3. Prisma klasörünü kopyala
 COPY prisma ./prisma/
+
+# 4. Prisma Client'ı generate et
 RUN npx prisma generate
 
-# Copy remaining source files
+# 5. Kalan dosyaları kopyala
 COPY . .
 
-# Use nest start for development - no build step required
-CMD ["npx", "nest", "start"]
+# 6. Build al
+RUN npm run build
+
+EXPOSE 3000
+CMD ["node", "dist/main.js"]
