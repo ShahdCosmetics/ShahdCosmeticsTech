@@ -5,9 +5,13 @@ import { PrismaService } from './prisma.service';
 export class AppController {
   constructor(private readonly prisma: PrismaService) {}
 
+  // @Get()
+  // async getProducts() {
+  //   // Veritabanındaki tüm ürünleri getirir
+  //   return this.prisma.product.findMany();
+  // }
   @Get()
-  async getProducts() {
-    // Veritabanındaki tüm ürünleri getirir
-    return this.prisma.product.findMany();
+  getHello(): string {
+    return 'API is running safely!';
   }
 }
