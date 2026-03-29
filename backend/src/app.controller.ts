@@ -1,17 +1,13 @@
 import { Controller, Get } from '@nestjs/common';
-import { PrismaService } from './prisma.service';
+import { AppService } from './app.service';
+import { RootResponseDto } from './app.dto';
 
-@Controller('products') // Bu satır localhost:3000/products yolunu açar
+@Controller()
 export class AppController {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly appService: AppService) {}
 
-  // @Get()
-  // async getProducts() {
-  //   // Veritabanındaki tüm ürünleri getirir
-  //   return this.prisma.product.findMany();
-  // }
   @Get()
-  getHello(): string {
-    return 'API is running safely!';
+  getRootResponse(): RootResponseDto {
+    return this.appService.getRootDirMessage();
   }
 }
