@@ -26,9 +26,7 @@ export default async function Home() {
       <main className="max-w-6xl mx-auto py-20 px-6">
         <section className="text-center mb-16">
           <h2 className="text-5xl font-extrabold mb-4">Welcome to ShahdCosmetics</h2>
-          <p className="text-zinc-600 dark:text-zinc-400 text-lg">
-            Welcome to ShahdCosmetic
-          </p>
+          <p className="text-zinc-600 dark:text-zinc-400 text-lg"> Gogoga gaga</p>
         </section>
 
         {/* Ürün Listeleme Alanı */}
