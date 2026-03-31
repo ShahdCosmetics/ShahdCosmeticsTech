@@ -97,10 +97,20 @@ docker-compose up --build -d
 
 This fixes 90% of local environment issues.
 
+## 4. Database Standards
+
+### ID Convention
+Use `Int @id @default(autoincrement())` for all models by default.
+
+**Exception:** `User` and `UserProfile` models use UUID (`String @id @default(uuid())`) 
+for security — this prevents attackers from guessing sequential user IDs on 
+user-facing endpoints.
+
+All other models (Product, Category, Inventory, etc.) must use Int IDs.
+
 ✅ **Advantages of this version**
 - Uses `*` and Markdown symbols as you requested  
 - No weird spacing when pasting into GitHub  
 - Clean GitHub rendering  
 - Perfect for `CONTRIBUTING.md`
 
-If you want, I can also show you **one trick used in big repos (like Vercel / Next.js)** to make this file **look much more professional with a Table of Contents**.
