@@ -26,14 +26,14 @@ export default async function Home() {
       <main className="max-w-6xl mx-auto py-20 px-6">
         <section className="text-center mb-16">
           <h2 className="text-5xl font-extrabold mb-4">Welcome to ShahdCosmetics</h2>
-          <p className="text-zinc-600 dark:text-zinc-400 text-lg"> Gogoga gaga</p>
+          <p className="text-zinc-600 dark:text-zinc-400 text-lg"> Welcome to ShahadCosmetics</p>
         </section>
 
         {/* Ürün Listeleme Alanı */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {products.length === 0 ? (
             <div className="col-span-3 text-center p-20 border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-3xl">
-              <p className="text-zinc-500">Henüz ürün eklenmemiş. Mutfakta (Backend) hazırlık yapılıyor...</p>
+              <p className="text-zinc-500">There are no products provided yet...</p>
             </div>
           ) : (
             products.map((product: any) => (
