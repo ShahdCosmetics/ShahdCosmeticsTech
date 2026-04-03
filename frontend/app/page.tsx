@@ -20,22 +20,20 @@ export default async function Home() {
     <div className="min-h-screen bg-zinc-50 dark:bg-black font-sans text-black dark:text-white">
       {/* Hero Section */}
       <nav className="p-6 border-b border-zinc-200 dark:border-zinc-800">
-        <h1 className="text-2xl font-bold tracking-tighter">SHAHD COSMETICS</h1>
+        <h1 className="text-2xl font-bold tracking-tighter">Welcome to ShahdCosmetics</h1>
       </nav>
 
       <main className="max-w-6xl mx-auto py-20 px-6">
         <section className="text-center mb-16">
-          <h2 className="text-5xl font-extrabold mb-4">Güzelliğinizi Keşfedin</h2>
-          <p className="text-zinc-600 dark:text-zinc-400 text-lg">
-            En seçkin kozmetik ürünleri ve özel formüllerle tanışın.
-          </p>
+          <h2 className="text-5xl font-extrabold mb-4">Welcome to ShahdCosmetics</h2>
+          <p className="text-zinc-600 dark:text-zinc-400 text-lg"> Welcome to ShahdCosmetics</p>
         </section>
 
         {/* Ürün Listeleme Alanı */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {products.length === 0 ? (
             <div className="col-span-3 text-center p-20 border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-3xl">
-              <p className="text-zinc-500">Henüz ürün eklenmemiş. Mutfakta (Backend) hazırlık yapılıyor...</p>
+              <p className="text-zinc-500">There are no products provided yet...</p>
             </div>
           ) : (
             products.map((product: any) => (
