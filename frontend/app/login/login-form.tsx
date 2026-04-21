@@ -30,12 +30,15 @@ export default function LoginForm() {
       const data = await res.json();
 
       if (!res.ok) {
-        // Use the backend error message when available, otherwise show a safe fallback
-        setErrorMessage(data.message ?? "Invalid credentials. Please try again.");
-        return;
-      }
+  setErrorMessage(data.message ?? "Invalid credentials. Please try again.");
+  return;
+}
 
-      router.push("/");
+// Store the JWT token in a cookie so the auth system can verify the session.
+// SameSite=Strict prevents the cookie from being sent in cross-site requests.
+document.cookie = `auth_token=${data.access_token}; path=/; SameSite=Strict`;
+
+router.push("/");
     } catch {
       // Covers network-level failures (Docker down, no internet, etc.)
       setErrorMessage("Something went wrong. Please try again later.");
