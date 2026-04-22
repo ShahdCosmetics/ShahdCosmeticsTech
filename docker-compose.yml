@@ -26,7 +26,10 @@ services:
       - db
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:3000
     container_name: shahd_frontend
     restart: always
     ports:
