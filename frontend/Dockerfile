@@ -1,23 +1,19 @@
-# Base image
 FROM node:20-alpine
 
-# Çalışma dizini
 WORKDIR /app
 
-# package.json ve package-lock.json kopyala
 COPY package*.json ./
 
-# bağımlılıkları yükle
 RUN npm install
 
-# tüm dosyaları kopyala
 COPY . .
 
-# build al
+# Build-time argument so NEXT_PUBLIC variables are baked into the bundle
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
 RUN npm run build
 
-# port
 EXPOSE 3000
 
-# başlat
 CMD ["npm", "run", "start"]
