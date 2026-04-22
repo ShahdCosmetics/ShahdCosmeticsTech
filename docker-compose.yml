@@ -1,8 +1,6 @@
-version: '3.8'
-
 services:
   db:
-    image: postgres:15-alpine # 18.3 yerine stabil 15 veya 16 öneririm (18 çok yeni/beta olabilir)
+    image: postgres:15-alpine
     container_name: shahd_db
     restart: always
     environment:
@@ -22,6 +20,7 @@ services:
       - "3000:3000"
     environment:
       DATABASE_URL: "postgresql://shahd_user:shahd_password@db:5432/shahd_db"
+      JWT_SECRET: "dev_secret_change_in_production"
       PORT: 3000
     depends_on:
       - db
@@ -31,7 +30,7 @@ services:
     container_name: shahd_frontend
     restart: always
     ports:
-      - "3001:3000" # Dışarıdan 3001 ile erişilecek, içeride 3000'de çalışıyor
+      - "3001:3000"
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:3000
     depends_on:
