@@ -2,9 +2,13 @@ import ProtectedRoute from "@/components/protected-route";
 
 async function fetchDashboardStats() {
   try {
+    // Use internal Docker network URL for server-side fetches.
+    // NEXT_PUBLIC_API_URL is browser-facing (localhost:3000),
+    // API_URL is container-facing (backend:3000).
+    const apiUrl = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL;
     const [productsRes, categoriesRes] = await Promise.all([
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`,   { cache: "no-store" }),
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories`, { cache: "no-store" }),
+      fetch(`${apiUrl}/products`,   { cache: "no-store" }),
+      fetch(`${apiUrl}/categories`, { cache: "no-store" }),
     ]);
     const products   = productsRes.ok   ? await productsRes.json()   : [];
     const categories = categoriesRes.ok ? await categoriesRes.json() : [];
