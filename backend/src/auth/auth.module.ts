@@ -3,10 +3,13 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { PrismaService } from '../prisma.service';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { RolesGuard } from './guards/roles.guard';
 
 /**
- * JwtModule is registered here with the secret from environment variables.
- * Never hardcode the secret — if it leaks, all tokens are compromised.
+ * JwtModule, JwtAuthGuard, and RolesGuard are exported so other
+ * feature modules (Products, Categories, etc.) can import AuthModule
+ * and use the guards without re-registering JwtService themselves.
  */
 @Module({
   imports: [
@@ -16,6 +19,7 @@ import { PrismaService } from '../prisma.service';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, PrismaService],
+  providers: [AuthService, PrismaService, JwtAuthGuard, RolesGuard],
+  exports: [JwtModule, JwtAuthGuard, RolesGuard],
 })
 export class AuthModule {}

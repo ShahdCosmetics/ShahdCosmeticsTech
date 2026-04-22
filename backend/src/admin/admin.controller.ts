@@ -2,7 +2,6 @@ import { Controller, Get, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { Role } from '../auth/enums/role.enum';
 
 /**
  * Handles all admin-only routes.
@@ -17,7 +16,7 @@ export class AdminController {
    * Only accessible by SUPER_ADMIN role.
    */
   @Get('dashboard')
-  @Roles(Role.SUPER_ADMIN)
+  @Roles('SUPER_ADMIN')
   getDashboard(): { message: string } {
     return { message: 'Welcome to the Admin Dashboard' };
   }

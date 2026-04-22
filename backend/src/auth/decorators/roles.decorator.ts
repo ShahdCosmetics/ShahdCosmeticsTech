@@ -1,5 +1,4 @@
 import { SetMetadata } from '@nestjs/common';
-import { Role } from '../enums/role.enum';
 
 /**
  * The key used to store and retrieve role metadata on a route handler.
@@ -8,10 +7,9 @@ import { Role } from '../enums/role.enum';
 export const ROLES_KEY = 'roles';
 
 /**
- * Attaches the required roles to a route as metadata.
- * The RolesGuard reads this metadata to decide if the
- * requesting user is authorized.
+ * Accepts plain strings instead of a Role enum so new roles can be
+ * added to the database without requiring code changes.
  * 
- * Usage: @Roles(Role.SUPER_ADMIN)
+ * Usage: @Roles('SUPER_ADMIN')
  */
-export const Roles = (...roles: Role[]) => SetMetadata(ROLES_KEY, roles);
+export const Roles = (...roles: string[]) => SetMetadata(ROLES_KEY, roles);
