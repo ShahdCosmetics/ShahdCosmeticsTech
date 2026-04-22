@@ -170,3 +170,13 @@ The `Dockerfile` already handles this correctly. Do not change the CMD path.
 - Every PR description must include `Resolves #<issue-number>`.
 - Every PR must only touch files related to its task. Do not modify unrelated files.
 - Always run `npm run build` and `npm run test` locally before opening a PR.
+
+
+### *Local Testing Rule (Mandatory Before Opening Any PR)*
+Before opening a PR you MUST:
+1. Run `docker-compose down && docker-compose up --build -d` locally
+2. Verify your feature works end-to-end in the browser
+3. Run `docker exec -it shahd_backend npm run test` and confirm all tests pass
+4. Run `git --no-pager diff main..<your-branch> --name-only` and confirm only your task files are changed
+
+A PR that breaks the Docker build will be closed immediately without review.
