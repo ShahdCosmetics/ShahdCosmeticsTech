@@ -1,5 +1,18 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateCategoryDto } from './create-category.dto';
+import { IsString, IsOptional, IsNumber, MaxLength, Min } from 'class-validator';
 
-// Reuses all fields from CreateCategoryDto but makes them optional
-export class UpdateCategoryDto extends PartialType(CreateCategoryDto) {}
+export class UpdateCategoryDto {
+  @IsString()
+  @IsOptional()
+  @MaxLength(150)
+  name?: string;
+
+  @IsString()
+  @IsOptional()
+  @MaxLength(150)
+  slug?: string;
+
+  @IsNumber()
+  @IsOptional()
+  @Min(1)
+  level?: number;
+}
