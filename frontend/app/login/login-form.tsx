@@ -30,12 +30,14 @@ export default function LoginForm() {
       const data = await res.json();
 
       if (!res.ok) {
-        // Use the backend error message when available, otherwise show a safe fallback
         setErrorMessage(data.message ?? "Invalid credentials. Please try again.");
         return;
       }
 
-      router.push("/");
+      // Store the JWT token in a cookie so ProtectedRoute can verify authentication
+      document.cookie = `auth_token=${data.accessToken}; path=/; max-age=${7 * 24 * 60 * 60}`;
+
+      router.push("/admin/dashboard");
     } catch {
       // Covers network-level failures (Docker down, no internet, etc.)
       setErrorMessage("Something went wrong. Please try again later.");
