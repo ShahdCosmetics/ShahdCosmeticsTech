@@ -5,12 +5,13 @@ import {
 import { PrismaService } from '../prisma.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { Product } from '@prisma/client';
 
 @Injectable()
 export class ProductsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(dto: CreateProductDto) {
+  async create(dto: CreateProductDto): Promise<Product> {
     // Verify categoryId exists before creating the product
     const category = await this.prisma.category.findUnique({
       where: { id: dto.categoryId },
@@ -80,7 +81,7 @@ export class ProductsService {
     });
   }
 
-  async findAll() {
+  async findAll(): Promise<Partial<Product>[]> {
     return this.prisma.product.findMany({
       select: {
         id: true,
@@ -92,7 +93,7 @@ export class ProductsService {
     });
   }
 
-  async findOne(id: string) {
+  async findOne(id: string): Promise<Partial<Product> & { inventory: { quantity: number } }> {
     const product = await this.prisma.product.findUnique({
       where: { id },
       include: {
@@ -119,7 +120,7 @@ export class ProductsService {
     };
   }
 
-  async update(id: string, dto: UpdateProductDto) {
+  async update(id: string, dto: UpdateProductDto): Promise<Product> {
     await this.findOne(id); // 404 guard
 
     if (dto.categoryId) {
@@ -146,18 +147,11 @@ export class ProductsService {
 
     return this.prisma.product.update({
       where: { id },
-      data: {
-        name: dto.name,
-        description: dto.description,
-        basePrice: dto.basePrice,
-        categoryId: dto.categoryId,
-        brandId: dto.brandId,
-        isActive: dto.isActive,
-      },
+      data: dto, 
     });
   }
 
-  async remove(id: string) {
+  async remove(id: string): Promise<{ message: string }> {
     await this.findOne(id); // 404 guard
     await this.prisma.product.delete({ where: { id } });
     return { message: 'Product deleted successfully' };

@@ -3,30 +3,45 @@ import { ProductsService } from './products.service';
 import { PrismaService } from '../prisma.service';
 import { NotFoundException } from '@nestjs/common';
 
-// Fake transaction context
-const mockTx = {
-  product: { create: jest.fn() },
-  productVariant: { create: jest.fn() },
-  inventory: { create: jest.fn() },
-  productImage: { create: jest.fn() },
-};
-
-const mockPrisma = {
-  product: {
-    findUnique: jest.fn(),
-    findMany: jest.fn(),
-    update: jest.fn(),
-    delete: jest.fn(),
-  },
-  category: { findUnique: jest.fn() },
-  brand: { findUnique: jest.fn() },
-  $transaction: jest.fn((cb) => cb(mockTx)),
-};
-
 describe('ProductsService', () => {
   let service: ProductsService;
 
+  // Scoped inside describe — isolated between test runs
+  let mockTx: {
+    product: { create: jest.Mock };
+    productVariant: { create: jest.Mock };
+    inventory: { create: jest.Mock };
+    productImage: { create: jest.Mock };
+  };
+
+  let mockPrisma: {
+    product: { findUnique: jest.Mock; findMany: jest.Mock; update: jest.Mock; delete: jest.Mock };
+    category: { findUnique: jest.Mock };
+    brand: { findUnique: jest.Mock };
+    $transaction: jest.Mock;
+  };
+
   beforeEach(async () => {
+    // Reset mocks before every test
+    mockTx = {
+      product: { create: jest.fn() },
+      productVariant: { create: jest.fn() },
+      inventory: { create: jest.fn() },
+      productImage: { create: jest.fn() },
+    };
+
+    mockPrisma = {
+      product: {
+        findUnique: jest.fn(),
+        findMany: jest.fn(),
+        update: jest.fn(),
+        delete: jest.fn(),
+      },
+      category: { findUnique: jest.fn() },
+      brand: { findUnique: jest.fn() },
+      $transaction: jest.fn((cb) => cb(mockTx)),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ProductsService,
@@ -35,7 +50,6 @@ describe('ProductsService', () => {
     }).compile();
 
     service = module.get<ProductsService>(ProductsService);
-    jest.clearAllMocks();
   });
 
   describe('create', () => {
@@ -69,10 +83,7 @@ describe('ProductsService', () => {
     it('should create product, variant, and inventory atomically', async () => {
       mockPrisma.category.findUnique.mockResolvedValue({ id: 'cat-uuid' });
       mockPrisma.brand.findUnique.mockResolvedValue({ id: 'brand-uuid' });
-      mockTx.product.create.mockResolvedValue({
-        id: 'prod-uuid',
-        name: 'Rose Cream',
-      });
+      mockTx.product.create.mockResolvedValue({ id: 'prod-uuid', name: 'Rose Cream' });
       mockTx.productVariant.create.mockResolvedValue({ id: 'variant-uuid' });
       mockTx.inventory.create.mockResolvedValue({});
 
@@ -113,6 +124,18 @@ describe('ProductsService', () => {
           isPrimary: true,
         },
       });
+    });
+  });
+
+  describe('findAll', () => {
+    it('should return a list of products', async () => {
+      mockPrisma.product.findMany.mockResolvedValue([
+        { id: 'prod-uuid', name: 'Rose Cream', basePrice: 2500, isActive: true },
+      ]);
+
+      const result = await service.findAll();
+      expect(result).toHaveLength(1);
+      expect(result[0].name).toBe('Rose Cream');
     });
   });
 
