@@ -15,7 +15,13 @@ describe('ProductsService', () => {
   };
 
   let mockPrisma: {
-    product: { findUnique: jest.Mock; findMany: jest.Mock; update: jest.Mock; delete: jest.Mock };
+    product: {
+      findUnique: jest.Mock;
+      findMany: jest.Mock;
+      update: jest.Mock;
+      delete: jest.Mock;
+      count: jest.Mock; // add this
+    };
     category: { findUnique: jest.Mock };
     brand: { findUnique: jest.Mock };
     $transaction: jest.Mock;
@@ -36,10 +42,16 @@ describe('ProductsService', () => {
         findMany: jest.fn(),
         update: jest.fn(),
         delete: jest.fn(),
+        count: jest.fn(), // needed for our paginated findAll
       },
       category: { findUnique: jest.fn() },
       brand: { findUnique: jest.fn() },
-      $transaction: jest.fn((cb) => cb(mockTx)),
+      // Handles both the callback form (create) and the array form (findAll)
+      // Promise.all resolves every promise in the array before returning
+      $transaction: jest.fn((arg) => {
+        if (typeof arg === 'function') return arg(mockTx);
+        return Promise.all(arg);
+      }),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -128,14 +140,133 @@ describe('ProductsService', () => {
   });
 
   describe('findAll', () => {
-    it('should return a list of products', async () => {
+    it('should return paginated results with correct meta', async () => {
+      mockPrisma.product.count.mockResolvedValue(20);
       mockPrisma.product.findMany.mockResolvedValue([
-        { id: 'prod-uuid', name: 'Rose Cream', basePrice: 2500, isActive: true },
+        {
+          id: 'prod-uuid',
+          name: 'Rose Cream',
+          basePrice: 25.50,
+          isActive: true,
+          isFeatured: false,
+          categoryId: 'cat-uuid',
+          ratingAvg: null,
+          reviewCount: 0,
+          images: [{ url: 'https://cdn.example.com/rose.jpg', isPrimary: true }],
+        },
       ]);
 
-      const result = await service.findAll();
-      expect(result).toHaveLength(1);
-      expect(result[0].name).toBe('Rose Cream');
+      const result = await service.findAll({ page: 1, limit: 10 });
+
+      expect(result.data).toHaveLength(1);
+      expect(result.meta).toEqual({
+        total: 20,
+        page: 1,
+        limit: 10,
+        totalPages: 2,
+      });
+    });
+
+    it('should filter by categoryId when provided', async () => {
+      mockPrisma.category.findUnique.mockResolvedValue({ id: 'cat-uuid' });
+      mockPrisma.product.count.mockResolvedValue(1);
+      mockPrisma.product.findMany.mockResolvedValue([
+        {
+          id: 'prod-uuid',
+          name: 'Rose Cream',
+          basePrice: 25.50,
+          isActive: true,
+          isFeatured: false,
+          categoryId: 'cat-uuid',
+          ratingAvg: null,
+          reviewCount: 0,
+          images: [],
+        },
+      ]);
+
+      const result = await service.findAll({ page: 1, limit: 10, categoryId: 'cat-uuid' });
+
+      expect(mockPrisma.category.findUnique).toHaveBeenCalledWith({
+        where: { id: 'cat-uuid' },
+      });
+      expect(result.data[0].categoryId).toBe('cat-uuid');
+    });
+
+    it('should throw NotFoundException if categoryId does not exist', async () => {
+      mockPrisma.category.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.findAll({ page: 1, limit: 10, categoryId: 'bad-uuid' }),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('should only return products where isActive is true', async () => {
+      mockPrisma.product.count.mockResolvedValue(1);
+      mockPrisma.product.findMany.mockResolvedValue([
+        {
+          id: 'prod-uuid',
+          name: 'Active Product',
+          basePrice: 10.00,
+          isActive: true,
+          isFeatured: false,
+          categoryId: 'cat-uuid',
+          ratingAvg: null,
+          reviewCount: 0,
+          images: [],
+        },
+      ]);
+
+      const result = await service.findAll({ page: 1, limit: 10 });
+
+      // Confirm the where clause passed to findMany includes isActive: true
+      expect(mockPrisma.product.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ isActive: true }),
+        }),
+      );
+      expect(result.data[0].isActive).toBe(true);
+    });
+
+    it('should return primaryImage url when a primary image exists', async () => {
+      mockPrisma.product.count.mockResolvedValue(1);
+      mockPrisma.product.findMany.mockResolvedValue([
+        {
+          id: 'prod-uuid',
+          name: 'Rose Cream',
+          basePrice: 25.50,
+          isActive: true,
+          isFeatured: false,
+          categoryId: 'cat-uuid',
+          ratingAvg: null,
+          reviewCount: 0,
+          images: [{ url: 'https://cdn.example.com/rose.jpg', isPrimary: true }],
+        },
+      ]);
+
+      const result = await service.findAll({ page: 1, limit: 10 });
+
+      expect(result.data[0].primaryImage).toBe('https://cdn.example.com/rose.jpg');
+    });
+
+    it('should return null for primaryImage when no image exists', async () => {
+      mockPrisma.product.count.mockResolvedValue(1);
+      mockPrisma.product.findMany.mockResolvedValue([
+        {
+          id: 'prod-uuid',
+          name: 'Rose Cream',
+          basePrice: 25.50,
+          isActive: true,
+          isFeatured: false,
+          categoryId: 'cat-uuid',
+          ratingAvg: null,
+          reviewCount: 0,
+          images: [],
+        },
+      ]);
+
+      const result = await service.findAll({ page: 1, limit: 10 });
+
+      expect(result.data[0].primaryImage).toBeNull();
     });
   });
 
