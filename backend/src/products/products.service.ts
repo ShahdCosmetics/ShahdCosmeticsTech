@@ -6,6 +6,8 @@ import { PrismaService } from '../prisma.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from '@prisma/client';
+import { ProductQueryDto } from './dto/product-query.dto';
+import { Decimal } from '@prisma/client/runtime/library';
 
 @Injectable()
 export class ProductsService {
@@ -81,16 +83,80 @@ export class ProductsService {
     });
   }
 
-  async findAll(): Promise<Partial<Product>[]> {
-    return this.prisma.product.findMany({
-      select: {
-        id: true,
-        name: true,
-        basePrice: true,
-        isActive: true,
-        category: { select: { id: true, name: true } },
+  async findAll(query: ProductQueryDto): Promise<{
+    data: {
+      id: string;
+      name: string;
+      basePrice: Decimal;
+      isActive: boolean;
+      isFeatured: boolean;
+      categoryId: string;
+      ratingAvg: Decimal | null;
+      reviewCount: number;
+      primaryImage: string | null;
+    }[];
+    meta: {
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+    };
+  }> {
+    const { page, limit, categoryId } = query;
+    const skip = (page - 1) * limit;
+
+    // Validate the categoryId exists before querying products
+    if (categoryId !== undefined) {
+      const category = await this.prisma.category.findUnique({
+        where: { id: categoryId },
+      });
+      if (!category) {
+        throw new NotFoundException(`Category with id "${categoryId}" not found`);
+      }
+    }
+
+    const where = {
+      isActive: true,
+      ...(categoryId !== undefined && { categoryId }),
+    };
+
+    // Run count and findMany in parallel — single round-trip to the database
+    const [total, products] = await this.prisma.$transaction([
+      this.prisma.product.count({ where }),
+      this.prisma.product.findMany({
+        where,
+        skip,
+        take: limit,
+        include: {
+          images: {
+            where: { isPrimary: true },
+            take: 1,
+          },
+        },
+      }),
+    ]);
+
+    const data = products.map((product) => ({
+      id: product.id,
+      name: product.name,
+      basePrice: product.basePrice,
+      isActive: product.isActive,
+      isFeatured: product.isFeatured,
+      categoryId: product.categoryId,
+      ratingAvg: product.ratingAvg,
+      reviewCount: product.reviewCount,
+      primaryImage: product.images[0]?.url ?? null,
+    }));
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
       },
-    });
+    };
   }
 
   async findOne(id: string): Promise<Partial<Product> & { inventory: { quantity: number } }> {

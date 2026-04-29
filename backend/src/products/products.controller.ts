@@ -6,6 +6,7 @@ import {
   Delete,
   Body,
   Param,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
@@ -15,6 +16,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Product } from '@prisma/client';
+import { ProductQueryDto } from './dto/product-query.dto';
 
 @Controller('products')
 export class ProductsController {
@@ -28,10 +30,10 @@ export class ProductsController {
     return this.productsService.create(dto);
   }
 
-  // Public — no auth required
+  // Public — no auth required. Supports pagination and category filtering.
   @Get()
-  findAll(): Promise<Partial<Product>[]> {
-    return this.productsService.findAll();
+  findAll(@Query() query: ProductQueryDto): ReturnType<typeof this.productsService.findAll> {
+    return this.productsService.findAll(query);
   }
 
   // Public — no auth required
