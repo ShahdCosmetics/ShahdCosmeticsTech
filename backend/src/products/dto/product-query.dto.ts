@@ -1,4 +1,4 @@
-import { IsOptional, IsInt, IsUUID, Min, Max } from 'class-validator';
+import { IsOptional, IsInt, IsUUID, IsString, IsIn, Min, Max } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class ProductQueryDto {
@@ -19,4 +19,18 @@ export class ProductQueryDto {
   @IsOptional()
   @IsUUID()
   categoryId?: string;
+
+  @IsOptional()
+  @IsString()
+  search?: string;
+
+  // Restrict sortBy to known DB fields only — prevents arbitrary column injection
+  @IsOptional()
+  @IsIn(['basePrice', 'createdAt'])
+  sortBy: 'basePrice' | 'createdAt' = 'createdAt';
+
+  // Defaults to desc so the storefront shows newest arrivals first out of the box
+  @IsOptional()
+  @IsIn(['asc', 'desc'])
+  sortOrder: 'asc' | 'desc' = 'desc';
 }

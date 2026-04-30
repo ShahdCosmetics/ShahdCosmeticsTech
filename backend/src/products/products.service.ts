@@ -102,7 +102,7 @@ export class ProductsService {
       totalPages: number;
     };
   }> {
-    const { page, limit, categoryId } = query;
+    const { page, limit, categoryId, search, sortBy, sortOrder } = query;
     const skip = (page - 1) * limit;
 
     // Validate the categoryId exists before querying products
@@ -118,6 +118,10 @@ export class ProductsService {
     const where = {
       isActive: true,
       ...(categoryId !== undefined && { categoryId }),
+      // mode: insensitive makes search work regardless of user capitalisation
+      ...(search !== undefined && {
+        name: { contains: search, mode: 'insensitive' as const },
+      }),
     };
 
     // Run count and findMany in parallel — single round-trip to the database
@@ -127,6 +131,7 @@ export class ProductsService {
         where,
         skip,
         take: limit,
+        orderBy: { [sortBy]: sortOrder },
         include: {
           images: {
             where: { isPrimary: true },
@@ -213,7 +218,7 @@ export class ProductsService {
 
     return this.prisma.product.update({
       where: { id },
-      data: dto, 
+      data: dto,
     });
   }
 
