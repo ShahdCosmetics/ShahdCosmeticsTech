@@ -400,7 +400,7 @@ describe('ProductsService', () => {
       );
     });
 
-    it('should reject invalid sortBy value with a validation error', async () => {
+    it('should pass invalid sortBy to service — DTO @IsIn decorator is the real guard', async () => {
       // @IsIn(['basePrice', 'createdAt']) on the DTO prevents this from
       // ever reaching the service in production — this test documents that contract
       const invalidQuery = { page: 1, limit: 10, sortBy: 'name' as any, sortOrder: 'asc' as const };
