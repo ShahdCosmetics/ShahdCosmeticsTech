@@ -30,6 +30,7 @@ model User {
   userRoles       UserRole[]
   // Refresh tokens are stored hashed for security.
   refreshTokens   RefreshToken[]
+  cart            Cart?
   ownedBrands     Brand[]
   brandFollowers  BrandFollower[]
   @@map("users")
@@ -248,6 +249,7 @@ model ProductVariant {
   inventory     Inventory?
 
   images  ProductImage[]
+  cartItems CartItem[]
 
   @@map("product_variants")
 
@@ -342,4 +344,40 @@ model Inventory {
   updatedAt         DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
   @@map("inventory")
+}
+
+// ─────────────────────────────────────────
+// CART & CART ITEMS
+// Created by: Hamza Baker
+// Created at: 03.05.2026
+// ─────────────────────────────────────────
+
+model Cart {
+  id        Int      @id @default(autoincrement())
+  userId    String   @unique @map("user_id")
+  // One cart per user — enforced by @unique on userId
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt      @map("updated_at") @db.Timestamptz
+
+  items     CartItem[]
+
+  @@map("carts")
+}
+
+model CartItem {
+  id        Int            @id @default(autoincrement())
+  cartId    Int            @map("cart_id")
+  cart      Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  variantId String         @map("variant_id")
+  // variantId is String (UUID) — matches product_variants.id convention
+  variant   ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  quantity  Int      @db.SmallInt
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  // A variant can only appear once per cart
+  @@unique([cartId, variantId])
+  @@map("cart_items")
 }
