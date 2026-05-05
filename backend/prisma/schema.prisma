@@ -31,6 +31,7 @@ model User {
   // Refresh tokens are stored hashed for security.
   refreshTokens   RefreshToken[]
   cart            Cart?
+  orders          Order[]
   ownedBrands     Brand[]
   brandFollowers  BrandFollower[]
   @@map("users")
@@ -250,6 +251,7 @@ model ProductVariant {
 
   images  ProductImage[]
   cartItems CartItem[]
+  orderItems OrderItem[]
 
   @@map("product_variants")
 
@@ -380,4 +382,53 @@ model CartItem {
   // A variant can only appear once per cart
   @@unique([cartId, variantId])
   @@map("cart_items")
+}
+
+// ─────────────────────────────────────────
+// ORDERS & ORDER ITEMS
+// Created by: Hamza Baker
+// Created at: 05.05.2026
+// ─────────────────────────────────────────
+
+model Order {
+  id               Int      @id @default(autoincrement())
+  userId           String   @map("user_id")
+  // Restrict prevents deleting a user who has order history — financial records must be preserved
+  user             User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  // Human-readable order number for customer-facing display (e.g. ORD-00001)
+  orderNumber      String   @unique @map("order_number") @db.VarChar(30)
+  // Allowed values: PENDING, PAID, CANCELLED, REFUNDED
+  status           String   @default("PENDING") @db.VarChar(50)
+  totalAmount      Decimal  @map("total_amount") @db.Decimal(12, 2)
+  currency         String   @default("TRY") @db.Char(3)
+  // Stores mock payment ID now, real Stripe payment intent ID later
+  paymentReference String?  @map("payment_reference") @db.VarChar(255)
+  notes            String?
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt        DateTime @updatedAt      @map("updated_at") @db.Timestamptz
+
+  items            OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id          Int            @id @default(autoincrement())
+  orderId     Int            @map("order_id")
+  order       Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  variantId   String         @map("variant_id")
+  // variantId is String (UUID) — matches product_variants.id convention
+  variant     ProductVariant @relation(fields: [variantId], references: [id])
+
+  // Snapshot of product name and SKU at time of purchase — protects against future changes
+  productName String   @map("product_name") @db.VarChar(300)
+  sku         String   @db.VarChar(100)
+  quantity    Int      @db.SmallInt
+  // Price snapshot at time of purchase — never reference live price
+  unitPrice   Decimal  @map("unit_price")  @db.Decimal(10, 2)
+  totalPrice  Decimal  @map("total_price") @db.Decimal(12, 2)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@map("order_items")
 }
