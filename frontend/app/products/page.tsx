@@ -6,50 +6,43 @@ import CategoryFilter from "@/components/category-filter";
 import SearchBar from "@/components/search-bar";
 import Pagination from "@/components/pagination";
 
-const ITEMS_PER_PAGE = 9;
-
 export default function ProductsPage() {
     const [products, setProducts] = useState<any[]>([]);
-    const [filtered, setFiltered] = useState<any[]>([]);
     const [categories, setCategories] = useState<string[]>([]);
     const [selectedCategory, setSelectedCategory] = useState("");
     const [searchQuery, setSearchQuery] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
 
     useEffect(() => {
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`)
+        const params = new URLSearchParams();
+        params.set("page", String(currentPage));
+        params.set("limit", "9");
+        if (searchQuery) params.set("search", searchQuery);
+        if (selectedCategory) params.set("categoryId", selectedCategory);
+
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?${params.toString()}`)
             .then((res) => res.json())
             .then((data) => {
-                const list = Array.isArray(data) ? data : data.products ?? [];
-                setProducts(list);
-                const cats = [...new Set(list.map((p: any) => p.category).filter(Boolean))] as string[];
+                setProducts(data.data ?? []);
+                setTotalPages(data.meta?.totalPages ?? 1);
+
+                // extract unique categoryIds for filter
+                const cats = [...new Set((data.data ?? []).map((p: any) => p.categoryId).filter(Boolean))] as string[];
                 setCategories(cats);
             })
             .catch(() => setProducts([]));
-    }, []);
+    }, [currentPage, searchQuery, selectedCategory]);
 
-    useEffect(() => {
-        let result = products;
-
-        if (selectedCategory) {
-            result = result.filter((p) => p.category === selectedCategory);
-        }
-
-        if (searchQuery) {
-            result = result.filter((p) =>
-                p.name.toLowerCase().includes(searchQuery.toLowerCase())
-            );
-        }
-
-        setFiltered(result);
+    const handleSearch = (query: string) => {
+        setSearchQuery(query);
         setCurrentPage(1);
-    }, [products, selectedCategory, searchQuery]);
+    };
 
-    const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
-    const paginated = filtered.slice(
-        (currentPage - 1) * ITEMS_PER_PAGE,
-        currentPage * ITEMS_PER_PAGE
-    );
+    const handleCategory = (cat: string) => {
+        setSelectedCategory(cat);
+        setCurrentPage(1);
+    };
 
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-black text-black dark:text-white">
@@ -60,14 +53,14 @@ export default function ProductsPage() {
             <main className="max-w-6xl mx-auto py-10 px-6">
                 <h2 className="text-4xl font-extrabold mb-8">Products</h2>
 
-                <SearchBar onSearch={setSearchQuery} />
+                <SearchBar onSearch={handleSearch} />
                 <CategoryFilter
                     categories={categories}
                     selected={selectedCategory}
-                    onSelect={setSelectedCategory}
+                    onSelect={handleCategory}
                 />
 
-                <ProductGrid products={paginated} />
+                <ProductGrid products={products} />
 
                 <Pagination
                     currentPage={currentPage}
