@@ -81,7 +81,6 @@ export default async function ProductsPage({ searchParams }: PageProps) {
                 <CategoryFilter
                     categories={categories}
                     selected={categoryId}
-                    onSelect={categoryId}
                 />
 
                 <ProductGrid products={products} />
@@ -89,7 +88,6 @@ export default async function ProductsPage({ searchParams }: PageProps) {
                 <Pagination
                     currentPage={page}
                     totalPages={meta.totalPages}
-                    onPageChange={page}
                 />
             </main>
         </div>

@@ -5,10 +5,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 interface PaginationProps {
   currentPage: number;
   totalPages: number;
-  onPageChange: number;
 }
 
-export default function Pagination({ currentPage, totalPages, onPageChange }: PaginationProps) {
+export default function Pagination({ currentPage, totalPages }: PaginationProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 

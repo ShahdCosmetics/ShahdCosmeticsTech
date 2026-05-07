@@ -10,10 +10,9 @@ interface Category {
 interface CategoryFilterProps {
   categories: Category[];
   selected: string;
-  onSelect: string;
 }
 
-export default function CategoryFilter({ categories, selected, onSelect }: CategoryFilterProps) {
+export default function CategoryFilter({ categories, selected }: CategoryFilterProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 

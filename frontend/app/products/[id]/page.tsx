@@ -13,7 +13,7 @@ interface Product {
   primaryImage?: string | null;
   description?: string;
   category?: Category | null;
-  inventoryQuantity?: number;
+  inventory?: { quantity: number } | null;
 }
 
 interface Props {
@@ -74,7 +74,7 @@ export default async function ProductDetailPage({ params }: Props) {
             )}
             <p className="text-zinc-600 dark:text-zinc-400">{product.description}</p>
             <p className="text-sm text-zinc-500">
-              In stock: {product.inventoryQuantity ?? "N/A"}
+              In stock: {product.inventory?.quantity ?? "N/A"}
             </p>
 
             <button className="mt-4 w-full bg-black dark:bg-white dark:text-black text-white py-3 rounded-xl font-medium">
