@@ -1,14 +1,19 @@
 import Link from "next/link";
 
+interface Category {
+  id: string;
+  name: string;
+}
+
 interface ProductCardProps {
   id: string;
   name: string;
   basePrice: string;
   primaryImage?: string | null;
-  categoryId?: string;
+  category?: Category | null;
 }
 
-export default function ProductCard({ id, name, basePrice, primaryImage, categoryId }: ProductCardProps) {
+export default function ProductCard({ id, name, basePrice, primaryImage, category }: ProductCardProps) {
   return (
     <Link href={`/products/${id}`}>
       <div className="group border border-zinc-200 dark:border-zinc-800 p-4 rounded-2xl hover:shadow-xl transition-all cursor-pointer">
@@ -23,8 +28,8 @@ export default function ProductCard({ id, name, basePrice, primaryImage, categor
         </div>
         <h3 className="text-xl font-semibold">{name}</h3>
         <p className="text-zinc-500">${basePrice}</p>
-        {categoryId && (
-          <span className="text-xs text-zinc-400 uppercase tracking-wide">{categoryId}</span>
+        {category && (
+          <span className="text-xs text-zinc-400 uppercase tracking-wide">{category.name}</span>
         )}
       </div>
     </Link>

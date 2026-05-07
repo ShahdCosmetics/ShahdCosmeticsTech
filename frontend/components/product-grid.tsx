@@ -1,11 +1,16 @@
 import ProductCard from "./product-card";
 
+interface Category {
+  id: string;
+  name: string;
+}
+
 interface Product {
   id: string;
   name: string;
   basePrice: string;
   primaryImage?: string | null;
-  categoryId?: string;
+  category?: Category | null;
 }
 
 interface ProductGridProps {
