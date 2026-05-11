@@ -121,39 +121,53 @@ export class CartService {
     return { message: 'Item added to cart successfully' };
   }
 
-  async updateItem(
+    async updateItem(
     userId: string,
     itemId: number,
     dto: UpdateCartItemDto,
-  ): Promise<{ message: string }> {
+    ): Promise<{ message: string }> {
     const cart = await this.prisma.cart.findUnique({ where: { userId } });
 
     if (!cart) {
-      throw new NotFoundException('Cart not found');
+        throw new NotFoundException('Cart not found');
     }
 
     const cartItem = await this.prisma.cartItem.findFirst({
-      where: { id: itemId, cartId: cart.id },
+        where: { id: itemId, cartId: cart.id },
+        include: {
+        variant: {
+            include: { inventory: true },
+        },
+        },
     });
 
     if (!cartItem) {
-      throw new NotFoundException(`Cart item with id "${itemId}" not found`);
+        throw new NotFoundException(`Cart item with id "${itemId}" not found`);
     }
 
     // quantity 0 is the signal to remove the item entirely
     if (dto.quantity === 0) {
-      await this.prisma.cartItem.delete({ where: { id: itemId } });
-      return { message: 'Cart item removed successfully' };
+        await this.prisma.cartItem.delete({ where: { id: itemId } });
+        return { message: 'Cart item removed successfully' };
+    }
+
+    const availableStock =
+        (cartItem.variant.inventory?.quantity ?? 0) -
+        (cartItem.variant.inventory?.reservedQty ?? 0);
+
+    if (dto.quantity > availableStock) {
+        throw new BadRequestException(
+        `Requested quantity exceeds available stock. Available: ${availableStock}`,
+        );
     }
 
     await this.prisma.cartItem.update({
-      where: { id: itemId },
-      data: { quantity: dto.quantity },
+        where: { id: itemId },
+        data: { quantity: dto.quantity },
     });
 
     return { message: 'Cart item updated successfully' };
-  }
-
+    }
   async removeItem(
     userId: string,
     itemId: number,

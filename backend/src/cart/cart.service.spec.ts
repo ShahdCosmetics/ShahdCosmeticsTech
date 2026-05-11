@@ -147,18 +147,42 @@ describe('CartService', () => {
 
   describe('updateItem', () => {
     it('should update quantity correctly', async () => {
-      mockPrisma.cart.findUnique.mockResolvedValue({ id: 1 });
-      mockPrisma.cartItem.findFirst.mockResolvedValue({ id: 4, cartId: 1, quantity: 2 });
-      mockPrisma.cartItem.update.mockResolvedValue({ id: 4, quantity: 5 });
+        mockPrisma.cart.findUnique.mockResolvedValue({ id: 1 });
+        mockPrisma.cartItem.findFirst.mockResolvedValue({
+            id: 4,
+            cartId: 1,
+            quantity: 2,
+            // variant must be included now that updateItem checks inventory
+            variant: {
+            inventory: { quantity: 10, reservedQty: 0 }, // 10 available
+            },
+        });
+        mockPrisma.cartItem.update.mockResolvedValue({ id: 4, quantity: 5 });
 
-      const result = await service.updateItem('user-uuid', 4, { quantity: 5 });
+        const result = await service.updateItem('user-uuid', 4, { quantity: 5 });
 
-      expect(mockPrisma.cartItem.update).toHaveBeenCalledWith({
-        where: { id: 4 },
-        data: { quantity: 5 },
-      });
-      expect(result.message).toBe('Cart item updated successfully');
-    });
+        expect(mockPrisma.cartItem.update).toHaveBeenCalledWith({
+            where: { id: 4 },
+            data: { quantity: 5 },
+        });
+        expect(result.message).toBe('Cart item updated successfully');
+        });
+
+    it('should throw BadRequestException if updated quantity exceeds inventory', async () => {
+        mockPrisma.cart.findUnique.mockResolvedValue({ id: 1 });
+        mockPrisma.cartItem.findFirst.mockResolvedValue({
+            id: 4,
+            cartId: 1,
+            quantity: 2,
+            variant: {
+            inventory: { quantity: 5, reservedQty: 3 }, // 2 available
+            },
+        });
+
+        await expect(
+            service.updateItem('user-uuid', 4, { quantity: 5 }),
+        ).rejects.toThrow(BadRequestException);
+        });
 
     it('should remove item when quantity is set to 0', async () => {
       mockPrisma.cart.findUnique.mockResolvedValue({ id: 1 });
