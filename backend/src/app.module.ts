@@ -7,6 +7,7 @@ import { AdminModule } from './admin/admin.module';
 import { CategoriesModule } from './categories/categories.module';
 import { ProductsModule } from './products/products.module';
 import { CartModule } from './cart/cart.module';
+import { OrdersModule } from './orders/orders.module';
 
 /**
  * AuthModule registers all auth routes and makes JWT strategy available.
