@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { AdminModule } from './admin/admin.module';
 import { CategoriesModule } from './categories/categories.module';
 import { ProductsModule } from './products/products.module';
+import { CartModule } from './cart/cart.module';
 
 /**
  * AuthModule registers all auth routes and makes JWT strategy available.
@@ -14,7 +15,7 @@ import { ProductsModule } from './products/products.module';
  * ProductsModule registers the product catalogue CRUD endpoints.
  */
 @Module({
-  imports: [AuthModule, AdminModule, CategoriesModule, ProductsModule],
+  imports: [AuthModule, AdminModule, CategoriesModule, ProductsModule, CartModule],
   controllers: [AppController],
   providers: [AppService, PrismaService],
 })
