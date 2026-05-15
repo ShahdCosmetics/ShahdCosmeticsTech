@@ -12,7 +12,7 @@ export class MockPaymentService implements IPaymentService {
     // Mock always succeeds — no external calls, no credentials
     return {
       success: true,
-      reference: 'MOCK-' + Math.random().toString(36).substring(2, 10).toUpperCase(),
+      reference: 'MOCK-' + Date.now(),
     };
   }
 }
