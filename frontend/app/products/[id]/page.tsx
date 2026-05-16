@@ -1,19 +1,22 @@
 import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
+import { Suspense } from "react";
+import CartNavIcon from "@/components/cart-nav-icon";
+import AddToCartButton from "@/components/add-to-cart-button";
 
 interface Category {
-  id: string;
+  id:   string;
   name: string;
 }
 
 interface Product {
-  id: string;
-  name: string;
-  basePrice: string;
+  id:           string;
+  name:         string;
+  basePrice:    string;
   primaryImage?: string | null;
   description?: string;
-  category?: Category | null;
-  inventory?: { quantity: number } | null;
+  category?:    Category | null;
+  inventory?:   { quantity: number } | null;
 }
 
 interface Props {
@@ -33,20 +36,24 @@ async function getProduct(id: string): Promise<Product | null> {
 }
 
 export default async function ProductDetailPage({ params }: Props) {
-  const { id } = await params;
+  const { id }  = await params;
   const product = await getProduct(id);
   if (!product) return notFound();
 
-  const cookieStore = await cookies();
-  const token = cookieStore.get("token");
+  const cookieStore     = await cookies();
+  const token           = cookieStore.get("auth_token");
   const isAuthenticated = !!token;
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black text-black dark:text-white">
-      <nav className="p-6 border-b border-zinc-200 dark:border-zinc-800">
+      <nav className="p-6 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
         <a href="/products" className="text-sm text-zinc-500 hover:underline">
-          &larr; Back to Products
+          Back to Products
         </a>
+        {/* Cart icon — wrapped in Suspense as it is a Client Component */}
+        <Suspense fallback={null}>
+          <CartNavIcon />
+        </Suspense>
       </nav>
 
       <main className="max-w-4xl mx-auto py-10 px-6">
@@ -73,14 +80,22 @@ export default async function ProductDetailPage({ params }: Props) {
                 {product.category.name}
               </span>
             )}
-            <p className="text-zinc-600 dark:text-zinc-400">{product.description}</p>
+            <p className="text-zinc-600 dark:text-zinc-400">
+              {product.description}
+            </p>
             <p className="text-sm text-zinc-500">
               In stock: {product.inventory?.quantity ?? "N/A"}
             </p>
 
-            <button className="mt-4 w-full bg-black dark:bg-white dark:text-black text-white py-3 rounded-xl font-medium">
-              {isAuthenticated ? "Add to Cart" : "Login to add to cart"}
-            </button>
+            {/*
+              AddToCartButton is a Client Component.
+              variantId uses product.id as a placeholder until
+              the variants system is implemented in a later card.
+            */}
+            <AddToCartButton
+              variantId={product.id}
+              isAuthenticated={isAuthenticated}
+            />
           </div>
         </div>
       </main>
