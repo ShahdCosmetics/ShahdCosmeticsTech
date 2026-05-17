@@ -180,3 +180,35 @@ Before opening a PR you MUST:
 4. Run `git --no-pager diff main..<your-branch> --name-only` and confirm only your task files are changed
 
 A PR that breaks the Docker build will be closed immediately without review.
+
+## 7. Frontend & Backend Parallel Development
+
+### *Never Wait for a Backend Merge to Start UI Work*
+Once the API contract is approved on the issue, the frontend team starts building immediately — do not wait for the backend PR to merge.
+
+Build your UI against a mock that matches the approved contract exactly:
+
+```typescript
+// Example: lib/mock-cart.ts — delete this file when the real API merges
+export const mockCart = {
+  cartId: 1,
+  totalAmount: "259.98",
+  items: [
+    {
+      itemId: 1,
+      variantId: "uuid",
+      productName: "Rose Lip Gloss",
+      basePrice: "129.99",
+      primaryImage: null,
+      quantity: 2,
+      subtotal: "259.98"
+    }
+  ]
+}
+```
+
+When the backend merges, replace the mock with the real `fetch()` call. If the contract was followed correctly, this is a one-line change.
+
+This is why the API contract approval step exists in every card — it is the handshake between backend and frontend that makes parallel work possible.
+
+If the team is blocked, use the mock pattern above to keep working.
