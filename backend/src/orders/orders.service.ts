@@ -55,9 +55,9 @@ export class OrdersService {
         new Decimal(0),
       );
 
-      // Generate unique order number
-      const orderNumber =
-        'ORD-' + Math.random().toString(36).substring(2, 10).toUpperCase();
+      // Combines timestamp and random suffix to prevent collisions
+const orderNumber =
+  'ORD-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
 
       // Process payment through abstraction layer
       const paymentResult = await this.paymentService.processPayment(
