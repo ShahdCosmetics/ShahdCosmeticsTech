@@ -128,10 +128,10 @@ export default function CartDrawer() {
                 ${cart.totalAmount}
               </span>
             </div>
-            
+            <a
               href="/checkout"
               className="w-full bg-black dark:bg-white dark:text-black text-white py-3 rounded-xl font-medium text-center text-sm block"
-            <a>
+            >
               Proceed to Checkout
             </a>
             <button
