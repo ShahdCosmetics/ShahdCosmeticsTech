@@ -16,7 +16,7 @@ import { OrdersModule } from './orders/orders.module';
  * ProductsModule registers the product catalogue CRUD endpoints.
  */
 @Module({
-  imports: [AuthModule, AdminModule, CategoriesModule, ProductsModule, CartModule],
+  imports: [AuthModule, AdminModule, CategoriesModule, ProductsModule, CartModule, OrdersModule],
   controllers: [AppController],
   providers: [AppService, PrismaService],
 })
