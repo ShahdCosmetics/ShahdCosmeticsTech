@@ -46,6 +46,8 @@ interface CartContextValue {
   removeItem: (itemId: number) => Promise<void>;
   openCart:   () => void;
   closeCart:  () => void;
+  // Clears local cart state after a successful order — backend already cleared the DB cart
+  clearCart:  () => void;
 }
 
 const EMPTY_CART: Cart = { cartId: null, totalAmount: "0.00", items: [] };
@@ -96,7 +98,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // Hydrate cart on mount if user is authenticated
   useEffect(() => {
     fetchCart();
   }, [fetchCart]);
@@ -171,6 +172,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         removeItem,
         openCart:  () => dispatch({ type: "OPEN_CART" }),
         closeCart: () => dispatch({ type: "CLOSE_CART" }),
+        // Resets cart state locally without an API call — backend cleared it on order creation
+        clearCart: () => dispatch({ type: "SET_CART", payload: EMPTY_CART }),
       }}
     >
       {children}
